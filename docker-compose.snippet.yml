@@ -1,0 +1,25 @@
+# =============================================================
+# Snippet — paste into your existing docker-compose.yml services
+# =============================================================
+#
+# Assumes your compose file already has: db, bot, api
+# Place this repo in a folder called "dashboard" next to the
+# backend, or adjust the build context path accordingly.
+#
+#  directory layout:
+#    finbot/               ← backend repo (has docker-compose.yml)
+#    finbot/dashboard/     ← this repo
+#
+# If you keep them side-by-side instead, change context to
+# "../couples-fin-dashboard" (or whatever the path is).
+
+  dashboard:
+    build:
+      context: ./dashboard
+      args:
+        NEXT_PUBLIC_API_URL: "http://api:8000"
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
