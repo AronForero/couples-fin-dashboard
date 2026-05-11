@@ -5,12 +5,6 @@ import type {
   SplitSettings,
 } from "@/types";
 
-function getBaseUrl(): string {
-  const url = process.env.NEXT_PUBLIC_API_URL;
-  if (!url) throw new Error("NEXT_PUBLIC_API_URL is not set");
-  return url;
-}
-
 class ApiError extends Error {
   status: number;
   constructor(status: number, message: string) {
@@ -31,7 +25,7 @@ async function request<T>(
   };
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
-  const res = await fetch(`${getBaseUrl()}${path}`, {
+  const res = await fetch(path, {
     ...options,
     headers,
   });
