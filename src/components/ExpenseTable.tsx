@@ -5,6 +5,7 @@ import { formatCOP } from "@/components/CategoryBreakdown";
 
 interface ExpenseTableProps {
   expenses: Expense[];
+  onEdit: (expense: Expense) => void;
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -13,10 +14,10 @@ const CATEGORY_COLORS: Record<string, string> = {
   TRANSPORTE: "bg-blue-100 text-blue-700",
   SALUD: "bg-pink-100 text-pink-700",
   EDUCACIÓN: "bg-amber-100 text-amber-700",
-  HOGAR: "bg-orange-100 text-orange-700",
-  SERVICIOS: "bg-cyan-100 text-cyan-700",
-  ROPA: "bg-fuchsia-100 text-fuchsia-700",
-  OTROS: "bg-slate-100 text-slate-600",
+  VIVIENDA: "bg-orange-100 text-orange-700",
+  INTERESES: "bg-cyan-100 text-cyan-700",
+  "AHORRO/INVERSIÓN": "bg-teal-100 text-teal-700",
+  IMPREVISTOS: "bg-slate-100 text-slate-600",
 };
 
 function formatDate(dateStr: string): string {
@@ -24,7 +25,7 @@ function formatDate(dateStr: string): string {
   return d.toLocaleDateString("es-CO", { day: "numeric", month: "short" });
 }
 
-export default function ExpenseTable({ expenses }: ExpenseTableProps) {
+export default function ExpenseTable({ expenses, onEdit }: ExpenseTableProps) {
   if (expenses.length === 0) {
     return (
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center">
@@ -46,6 +47,7 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
               <th className="text-right px-4 py-3 font-medium text-slate-500">Valor</th>
               <th className="text-center px-4 py-3 font-medium text-slate-500">Compartida</th>
               <th className="text-right px-4 py-3 font-medium text-slate-500">A pagar</th>
+              <th className="px-4 py-3 w-10"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
@@ -61,7 +63,7 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
                   {exp.categoria && (
                     <span
                       className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium capitalize ${
-                        CATEGORY_COLORS[exp.categoria] ?? CATEGORY_COLORS.OTROS
+                        CATEGORY_COLORS[exp.categoria] ?? CATEGORY_COLORS.IMPREVISTOS
                       }`}
                     >
                       {exp.categoria.toLowerCase()}
@@ -91,6 +93,17 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
                 </td>
                 <td className="px-4 py-3 text-right tabular-nums text-slate-600 whitespace-nowrap">
                   {exp.valor_a_pagar ? formatCOP(exp.valor_a_pagar) : "—"}
+                </td>
+                <td className="px-4 py-3">
+                  <button
+                    onClick={() => onEdit(exp)}
+                    className="text-slate-400 hover:text-indigo-600 transition-colors"
+                    title="Editar"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
+                    </svg>
+                  </button>
                 </td>
               </tr>
             ))}

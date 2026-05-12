@@ -1,3 +1,17 @@
+export interface User {
+  id: number;
+  email: string;
+  display_name: string;
+  couple_id: number | null;
+  chat_id: number | null;
+  created_at: string;
+}
+
+export interface AuthResponse {
+  access_token: string;
+  token_type: string;
+}
+
 export interface Expense {
   id: number;
   fecha: string;
@@ -10,6 +24,16 @@ export interface Expense {
   valor_a_pagar: number | null;
   observacion: string | null;
   created_at: string;
+}
+
+export interface ExpenseUpdate {
+  fecha?: string;
+  quien_pago?: string;
+  subcategoria?: string;
+  categoria?: string;
+  concepto?: string;
+  valor?: number;
+  compartida?: string;
 }
 
 export interface CategoryBreakdown {

@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
-import { getExpenses } from "@/lib/api";
-import type { Expense } from "@/types";
+import { getExpenses, updateExpense, deleteExpense } from "@/lib/api";
+import type { Expense, ExpenseUpdate } from "@/types";
 import MonthPicker from "@/components/MonthPicker";
 import ExpenseTable from "@/components/ExpenseTable";
+import ExpenseEditModal from "@/components/ExpenseEditModal";
 import { formatCOP } from "@/components/CategoryBreakdown";
 
 const now = new Date();
@@ -17,8 +18,9 @@ export default function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
 
-  useEffect(() => {
+  const fetchExpenses = useCallback(() => {
     if (!token) return;
     setLoading(true);
     setError("");
@@ -27,6 +29,22 @@ export default function ExpensesPage() {
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, [token, year, month]);
+
+  useEffect(() => {
+    fetchExpenses();
+  }, [fetchExpenses]);
+
+  async function handleSave(id: number, data: ExpenseUpdate) {
+    if (!token) return;
+    await updateExpense(token, id, data);
+    fetchExpenses();
+  }
+
+  async function handleDelete(id: number) {
+    if (!token) return;
+    await deleteExpense(token, id);
+    fetchExpenses();
+  }
 
   const total = expenses.reduce((sum, e) => sum + e.valor, 0);
   const sharedCount = expenses.filter((e) => e.compartida === "Si").length;
@@ -77,7 +95,16 @@ export default function ExpensesPage() {
         </div>
       )}
 
-      {!loading && <ExpenseTable expenses={expenses} />}
+      {!loading && (
+        <ExpenseTable expenses={expenses} onEdit={setEditingExpense} />
+      )}
+
+      <ExpenseEditModal
+        expense={editingExpense}
+        onClose={() => setEditingExpense(null)}
+        onSave={handleSave}
+        onDelete={handleDelete}
+      />
     </div>
   );
 }

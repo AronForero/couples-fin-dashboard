@@ -10,7 +10,7 @@ const NAV_ITEMS = [
 ] as const;
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
+  const { displayName, logout } = useAuth();
   const pathname = usePathname();
 
   return (
@@ -37,7 +37,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-3">
           <span className="text-sm text-slate-500 hidden sm:inline">
-            {user}
+            {displayName}
           </span>
           <button
             onClick={logout}
