@@ -69,6 +69,12 @@ export interface SplitSettings {
   split_mon: number;
 }
 
+export interface CoupleMember {
+  id: number;
+  display_name: string;
+  email: string;
+}
+
 export interface HealthResponse {
   status: string;
 }

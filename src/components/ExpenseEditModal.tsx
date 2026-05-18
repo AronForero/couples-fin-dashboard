@@ -17,6 +17,7 @@ const CATEGORIES = [
 
 interface ExpenseEditModalProps {
   expense: Expense | null;
+  memberNames: [string, string];
   onClose: () => void;
   onSave: (id: number, data: ExpenseUpdate) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
@@ -24,6 +25,7 @@ interface ExpenseEditModalProps {
 
 export default function ExpenseEditModal({
   expense,
+  memberNames,
   onClose,
   onSave,
   onDelete,
@@ -177,7 +179,7 @@ export default function ExpenseEditModal({
               ¿Quién pagó?
             </label>
             <div className="flex gap-2">
-              {["Aru", "Mon"].map((name) => (
+              {memberNames.map((name) => (
                 <button
                   key={name}
                   type="button"

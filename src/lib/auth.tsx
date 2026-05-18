@@ -8,8 +8,14 @@ import {
   useMemo,
   useState,
 } from "react";
-import { getMe, loginUser, registerUser, joinCouple } from "./api";
-import type { User } from "@/types";
+import {
+  getMe,
+  loginUser,
+  registerUser,
+  joinCouple,
+  getCoupleMembers,
+} from "./api";
+import type { CoupleMember, User } from "@/types";
 
 const TOKEN_KEY = "finbot_token";
 
@@ -19,13 +25,13 @@ interface AuthContextValue {
   displayName: string | null;
   isAuthenticated: boolean;
   hasCouple: boolean;
+  memberNames: [string, string];
   login: (email: string, password: string) => Promise<void>;
   register: (
     email: string,
     password: string,
     displayName: string,
   ) => Promise<void>;
-  loginWithToken: (token: string) => void;
   joinCoupleAction: (code: string) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
@@ -33,38 +39,30 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-function decodeLegacySub(token: string): string | null {
-  try {
-    const payload = token.split(".")[1];
-    const decoded = JSON.parse(atob(payload));
-    return decoded.sub ?? null;
-  } catch {
-    return null;
-  }
-}
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [coupleMembers, setCoupleMembers] = useState<CoupleMember[] | null>(
+    null,
+  );
 
   const fetchUser = useCallback(async (t: string) => {
     try {
       const u = await getMe(t);
       setUser(u);
-    } catch {
-      const legacy = decodeLegacySub(t);
-      if (legacy) {
-        setUser({
-          id: 0,
-          email: "",
-          display_name: legacy,
-          couple_id: null,
-          chat_id: null,
-          created_at: "",
-        });
+      if (u.couple_id) {
+        try {
+          const members = await getCoupleMembers(t);
+          setCoupleMembers(members);
+        } catch {
+          setCoupleMembers(null);
+        }
       } else {
-        setUser(null);
+        setCoupleMembers(null);
       }
+    } catch {
+      setUser(null);
+      setCoupleMembers(null);
     }
   }, []);
 
@@ -96,15 +94,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [fetchUser],
   );
 
-  const loginWithToken = useCallback(
-    (newToken: string) => {
-      localStorage.setItem(TOKEN_KEY, newToken);
-      setToken(newToken);
-      fetchUser(newToken);
-    },
-    [fetchUser],
-  );
-
   const joinCoupleAction = useCallback(
     async (code: string) => {
       if (!token) throw new Error("No autenticado");
@@ -118,11 +107,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem(TOKEN_KEY);
     setToken(null);
     setUser(null);
+    setCoupleMembers(null);
   }, []);
 
   const refreshUser = useCallback(async () => {
     if (token) await fetchUser(token);
   }, [token, fetchUser]);
+
+  const memberNames: [string, string] = useMemo(() => {
+    if (coupleMembers && coupleMembers.length >= 2) {
+      return [coupleMembers[0].display_name, coupleMembers[1].display_name];
+    }
+    if (user) return [user.display_name, "Pareja"];
+    return ["", ""];
+  }, [coupleMembers, user]);
 
   const value = useMemo(
     () => ({
@@ -131,14 +129,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       displayName: user?.display_name ?? null,
       isAuthenticated: !!token && !!user,
       hasCouple: !!user?.couple_id,
+      memberNames,
       login,
       register,
-      loginWithToken,
       joinCoupleAction,
       logout,
       refreshUser,
     }),
-    [token, user, login, register, loginWithToken, joinCoupleAction, logout, refreshUser],
+    [
+      token,
+      user,
+      memberNames,
+      login,
+      register,
+      joinCoupleAction,
+      logout,
+      refreshUser,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -11,7 +11,7 @@ import CategoryBreakdown, { formatCOP } from "@/components/CategoryBreakdown";
 const now = new Date();
 
 export default function BalancePage() {
-  const { token } = useAuth();
+  const { token, memberNames } = useAuth();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [data, setData] = useState<BalanceResponse | null>(null);
@@ -32,7 +32,14 @@ export default function BalancePage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900">Balance</h1>
-        <MonthPicker year={year} month={month} onChange={(y, m) => { setYear(y); setMonth(m); }} />
+        <MonthPicker
+          year={year}
+          month={month}
+          onChange={(y, m) => {
+            setYear(y);
+            setMonth(m);
+          }}
+        />
       </div>
 
       {loading && (
@@ -49,13 +56,18 @@ export default function BalancePage() {
 
       {data && !loading && (
         <div className="grid gap-6 lg:grid-cols-2">
-          <BalanceCard compartido={data.compartido} />
+          <BalanceCard
+            compartido={data.compartido}
+            memberNames={memberNames}
+          />
 
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
             <h3 className="text-lg font-semibold text-slate-900 mb-1">
               Gastos personales
             </h3>
-            <p className="text-sm text-slate-500 mb-4">{data.personal.viewer}</p>
+            <p className="text-sm text-slate-500 mb-4">
+              {data.personal.viewer}
+            </p>
 
             <div className="bg-slate-50 rounded-xl p-4 mb-6">
               <p className="text-xs text-slate-500 mb-1">Total personal</p>
@@ -79,11 +91,14 @@ export default function BalancePage() {
         </div>
       )}
 
-      {data && !loading && data.compartido.gastos_totales === 0 && data.personal.gastos_totales === 0 && (
-        <p className="text-sm text-slate-400 text-center py-12">
-          No hay gastos registrados para {data.mes.toLowerCase()} {year}
-        </p>
-      )}
+      {data &&
+        !loading &&
+        data.compartido.gastos_totales === 0 &&
+        data.personal.gastos_totales === 0 && (
+          <p className="text-sm text-slate-400 text-center py-12">
+            No hay gastos registrados para {data.mes.toLowerCase()} {year}
+          </p>
+        )}
     </div>
   );
 }

@@ -5,9 +5,13 @@ import { formatCOP } from "@/components/CategoryBreakdown";
 
 interface BalanceCardProps {
   compartido: SharedBalance;
+  memberNames: [string, string];
 }
 
-export default function BalanceCard({ compartido }: BalanceCardProps) {
+export default function BalanceCard({
+  compartido,
+  memberNames,
+}: BalanceCardProps) {
   const {
     aron_gasto,
     mon_gasto,
@@ -17,8 +21,10 @@ export default function BalanceCard({ compartido }: BalanceCardProps) {
     por_categoria,
   } = compartido;
 
-  const deudor = balance_key.includes("Mon debe") ? "Mon" : "Aru";
-  const acreedor = deudor === "Mon" ? "Aru" : "Mon";
+  const [name0, name1] = memberNames;
+
+  const deudor = balance_key.includes(`${name1} debe`) ? name1 : name0;
+  const acreedor = deudor === name1 ? name0 : name1;
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
@@ -28,16 +34,16 @@ export default function BalanceCard({ compartido }: BalanceCardProps) {
 
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div className="bg-slate-50 rounded-xl p-4">
-          <p className="text-xs text-slate-500 mb-1">Aru pagó</p>
+          <p className="text-xs text-slate-500 mb-1">{name0} pagó</p>
           <p className="text-lg font-semibold text-slate-900 tabular-nums">
             {formatCOP(aron_gasto)}
           </p>
         </div>
         <div className="bg-slate-50 rounded-xl p-4">
-          <p className="text-xs text-slate-500 mb-1">Mon pagó</p>
+          <p className="text-xs text-slate-500 mb-1">{name1} pagó</p>
           <p className="text-lg font-semibold text-slate-900 tabular-nums">
             {formatCOP(mon_gasto)}
-        </p>
+          </p>
         </div>
       </div>
 

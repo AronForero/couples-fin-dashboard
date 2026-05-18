@@ -12,7 +12,7 @@ import { formatCOP } from "@/components/CategoryBreakdown";
 const now = new Date();
 
 export default function ExpensesPage() {
-  const { token } = useAuth();
+  const { token, memberNames } = useAuth();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -101,6 +101,7 @@ export default function ExpensesPage() {
 
       <ExpenseEditModal
         expense={editingExpense}
+        memberNames={memberNames}
         onClose={() => setEditingExpense(null)}
         onSave={handleSave}
         onDelete={handleDelete}

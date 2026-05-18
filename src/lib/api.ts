@@ -1,6 +1,7 @@
 import type {
   AuthResponse,
   BalanceResponse,
+  CoupleMember,
   Expense,
   ExpenseUpdate,
   HealthResponse,
@@ -41,12 +42,6 @@ async function request<T>(
   return res.json();
 }
 
-function formBody(data: Record<string, string>): string {
-  return Object.entries(data)
-    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
-    .join("&");
-}
-
 // --- Auth ---
 
 export function registerUser(
@@ -70,8 +65,7 @@ export function loginUser(
 ): Promise<AuthResponse> {
   return request<AuthResponse>("/api/auth/login", null, {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: formBody({ username: email, password }),
+    body: JSON.stringify({ email, password }),
   });
 }
 
@@ -87,6 +81,10 @@ export function joinCouple(
     method: "POST",
     body: JSON.stringify({ invite_code: inviteCode }),
   });
+}
+
+export function getCoupleMembers(token: string): Promise<CoupleMember[]> {
+  return request<CoupleMember[]>("/api/auth/couple/members", token);
 }
 
 // --- Health ---
