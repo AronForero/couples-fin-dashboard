@@ -7,11 +7,13 @@ import { usePathname } from "next/navigation";
 const NAV_ITEMS = [
   { href: "/balance", label: "Balance" },
   { href: "/expenses", label: "Gastos" },
-] as const;
+];
 
 export default function Navbar() {
-  const { displayName, logout } = useAuth();
+  const { displayName, coupleMembers, logout } = useAuth();
   const pathname = usePathname();
+
+  const isSolo = coupleMembers.length < 2;
 
   return (
     <nav className="bg-white border-b border-slate-200">
@@ -32,6 +34,18 @@ export default function Navbar() {
                 {label}
               </Link>
             ))}
+            {isSolo && (
+              <Link
+                href="/invite"
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  pathname === "/invite"
+                    ? "bg-orange-50 text-orange-700"
+                    : "text-orange-600 hover:bg-orange-50"
+                }`}
+              >
+                Invitar
+              </Link>
+            )}
           </div>
         </div>
 

@@ -13,8 +13,7 @@ export default function BalanceCard({
   memberNames,
 }: BalanceCardProps) {
   const {
-    aron_gasto,
-    mon_gasto,
+    gastos,
     gastos_totales,
     balance_key,
     deuda_total,
@@ -22,6 +21,8 @@ export default function BalanceCard({
   } = compartido;
 
   const [name0, name1] = memberNames;
+  const gasto0 = gastos[0] ?? 0;
+  const gasto1 = gastos[1] ?? 0;
 
   const deudor = balance_key.includes(`${name1} debe`) ? name1 : name0;
   const acreedor = deudor === name1 ? name0 : name1;
@@ -36,13 +37,13 @@ export default function BalanceCard({
         <div className="bg-slate-50 rounded-xl p-4">
           <p className="text-xs text-slate-500 mb-1">{name0} pagó</p>
           <p className="text-lg font-semibold text-slate-900 tabular-nums">
-            {formatCOP(aron_gasto)}
+            {formatCOP(gasto0)}
           </p>
         </div>
         <div className="bg-slate-50 rounded-xl p-4">
           <p className="text-xs text-slate-500 mb-1">{name1} pagó</p>
           <p className="text-lg font-semibold text-slate-900 tabular-nums">
-            {formatCOP(mon_gasto)}
+            {formatCOP(gasto1)}
           </p>
         </div>
       </div>

@@ -66,7 +66,7 @@ export default function BalancePage() {
               Gastos personales
             </h3>
             <p className="text-sm text-slate-500 mb-4">
-              {data.personal.viewer}
+              {data.personal.viewer_name}
             </p>
 
             <div className="bg-slate-50 rounded-xl p-4 mb-6">

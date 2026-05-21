@@ -12,7 +12,6 @@ import {
   getMe,
   loginUser,
   registerUser,
-  joinCouple,
   getCoupleMembers,
 } from "./api";
 import type { CoupleMember, User } from "@/types";
@@ -23,8 +22,10 @@ interface AuthContextValue {
   token: string | null;
   user: User | null;
   displayName: string | null;
+  inviteCode: string | null;
   isAuthenticated: boolean;
   hasCouple: boolean;
+  coupleMembers: CoupleMember[];
   memberNames: [string, string];
   login: (email: string, password: string) => Promise<void>;
   register: (
@@ -32,7 +33,6 @@ interface AuthContextValue {
     password: string,
     displayName: string,
   ) => Promise<void>;
-  joinCoupleAction: (code: string) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
@@ -42,9 +42,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [coupleMembers, setCoupleMembers] = useState<CoupleMember[] | null>(
-    null,
-  );
+  const [coupleMembers, setCoupleMembers] = useState<CoupleMember[]>([]);
 
   const fetchUser = useCallback(async (t: string) => {
     try {
@@ -55,14 +53,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const members = await getCoupleMembers(t);
           setCoupleMembers(members);
         } catch {
-          setCoupleMembers(null);
+          setCoupleMembers([]);
         }
       } else {
-        setCoupleMembers(null);
+        setCoupleMembers([]);
       }
     } catch {
       setUser(null);
-      setCoupleMembers(null);
+      setCoupleMembers([]);
     }
   }, []);
 
@@ -94,28 +92,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [fetchUser],
   );
 
-  const joinCoupleAction = useCallback(
-    async (code: string) => {
-      if (!token) throw new Error("No autenticado");
-      await joinCouple(token, code);
-      await fetchUser(token);
-    },
-    [token, fetchUser],
-  );
-
   const logout = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY);
     setToken(null);
     setUser(null);
-    setCoupleMembers(null);
+    setCoupleMembers([]);
   }, []);
 
   const refreshUser = useCallback(async () => {
     if (token) await fetchUser(token);
   }, [token, fetchUser]);
 
+  const inviteCode = user?.invite_code ?? null;
+
   const memberNames: [string, string] = useMemo(() => {
-    if (coupleMembers && coupleMembers.length >= 2) {
+    if (coupleMembers.length >= 2) {
       return [coupleMembers[0].display_name, coupleMembers[1].display_name];
     }
     if (user) return [user.display_name, "Pareja"];
@@ -127,22 +118,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       token,
       user,
       displayName: user?.display_name ?? null,
+      inviteCode,
       isAuthenticated: !!token && !!user,
       hasCouple: !!user?.couple_id,
+      coupleMembers,
       memberNames,
       login,
       register,
-      joinCoupleAction,
       logout,
       refreshUser,
     }),
     [
       token,
       user,
+      inviteCode,
+      coupleMembers,
       memberNames,
       login,
       register,
-      joinCoupleAction,
       logout,
       refreshUser,
     ],
