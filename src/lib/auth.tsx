@@ -16,7 +16,7 @@ import {
 } from "./api";
 import type { CoupleMember, User } from "@/types";
 
-const TOKEN_KEY = "finbot_token";
+const TOKEN_KEY = "finduo_token";
 
 interface AuthContextValue {
   token: string | null;

@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Next.js 14 App Router frontend for a couples' finance dashboard ("A&M Finanzas"). This repo is **frontend only** — it proxies API calls to a separate Python/FastAPI backend via Next.js rewrites.
+Next.js 14 App Router frontend for a couples' finance dashboard ("FinDuo"). This repo is **frontend only** — it proxies API calls to a separate Python/FastAPI backend via Next.js rewrites.
 
 ## Commands
 
@@ -17,7 +17,7 @@ No test suite exists. No typecheck script — `tsc --noEmit` is implicit via `ne
 ## Architecture
 
 - **API proxy**: All `/api/*` requests rewrite to `API_INTERNAL_URL` (default `http://localhost:8000`). Never call the backend directly from client code — always go through `/api/`.
-- **Auth**: JWT stored in `localStorage` under `finbot_token`. Auth context (`src/lib/auth.tsx`) wraps the entire app. Login uses OAuth2 password flow (`application/x-www-form-urlencoded`), register uses JSON.
+- **Auth**: JWT stored in `localStorage` under `finduo_token`. Auth context (`src/lib/auth.tsx`) wraps the entire app. Login uses OAuth2 password flow (`application/x-www-form-urlencoded`), register uses JSON.
 - **Route groups**: `(authenticated)/` layout guards protected pages (expenses, balance). Unauthenticated users redirect to `/login`.
 - **Path alias**: `@/*` maps to `./src/*`.
 
@@ -26,7 +26,7 @@ No test suite exists. No typecheck script — `tsc --noEmit` is implicit via `ne
 - `src/lib/api.ts` — all API calls (auth, expenses, balance, split settings)
 - `src/lib/auth.tsx` — AuthProvider context, token management, legacy token support
 - `src/types/index.ts` — shared TypeScript interfaces (User, Expense, BalanceResponse, etc.)
-- `src/app/(authenticated)/layout.tsx` — auth guard + Navbar + JoinModal
+- `src/app/(authenticated)/layout.tsx` — auth guard + Navbar + InviteBanner
 
 ## Environment
 

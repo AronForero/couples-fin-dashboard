@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
-const DISMISSED_KEY = "finbot_invite_banner_dismissed";
+const DISMISSED_KEY = "finduo_invite_banner_dismissed";
 
 export default function InviteBanner() {
   const [dismissed, setDismissed] = useState(true);

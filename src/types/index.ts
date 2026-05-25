@@ -23,7 +23,6 @@ export interface Expense {
   valor: number;
   compartida: string;
   valor_a_pagar: number | null;
-  observacion: string | null;
   created_at: string;
 }
 

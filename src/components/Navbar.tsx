@@ -19,7 +19,7 @@ export default function Navbar() {
     <nav className="bg-white border-b border-slate-200">
       <div className="max-w-5xl mx-auto px-4 flex items-center justify-between h-14">
         <div className="flex items-center gap-6">
-          <span className="text-lg font-bold text-indigo-600">A&M</span>
+          <span className="text-lg font-bold text-indigo-600">FinDuo</span>
           <div className="flex gap-1">
             {NAV_ITEMS.map(({ href, label }) => (
               <Link

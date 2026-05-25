@@ -49,7 +49,7 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-slate-900">A&M Finanzas</h1>
+          <h1 className="text-3xl font-bold text-slate-900">FinDuo</h1>
           <p className="text-slate-500 mt-2">Creá tu cuenta</p>
         </div>
 
