@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 const NAV_ITEMS = [
   { href: "/balance", label: "Balance" },
   { href: "/expenses", label: "Gastos" },
+  { href: "/couple/manage", label: "Pareja" },
 ];
 
 export default function Navbar() {

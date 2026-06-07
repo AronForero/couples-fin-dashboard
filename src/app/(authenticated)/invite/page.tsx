@@ -3,11 +3,13 @@
 import { FormEvent, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { joinCouple } from "@/lib/api";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function InvitePage() {
   const { token, user, refreshUser } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const leftCouple = searchParams.get("left") === "true";
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -40,6 +42,13 @@ export default function InvitePage() {
 
   return (
     <div className="max-w-md mx-auto space-y-8">
+      {leftCouple && (
+        <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-sm text-green-700">
+          Saliste de tu pareja anterior. Podés crear una nueva o unirte a una
+          existente.
+        </div>
+      )}
+
       <div className="text-center">
         <h1 className="text-2xl font-bold text-slate-900">Invitar pareja</h1>
         <p className="text-sm text-slate-500 mt-1">

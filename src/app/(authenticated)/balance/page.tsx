@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
-import { getBalance } from "@/lib/api";
-import type { BalanceResponse } from "@/types";
+import { getBalance, getCoupleHistory } from "@/lib/api";
+import type { BalanceResponse, CoupleHistory } from "@/types";
 import MonthPicker from "@/components/MonthPicker";
 import BalanceCard from "@/components/BalanceCard";
 import CategoryBreakdown, { formatCOP } from "@/components/CategoryBreakdown";
+import CoupleSelector from "@/components/CoupleSelector";
 
 const now = new Date();
 
@@ -17,29 +18,53 @@ export default function BalancePage() {
   const [data, setData] = useState<BalanceResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [couples, setCouples] = useState<CoupleHistory[]>([]);
+  const [selectedCoupleId, setSelectedCoupleId] = useState<number | null>(null);
 
+  // Fetch couple history on mount
   useEffect(() => {
     if (!token) return;
+    getCoupleHistory(token)
+      .then((history) => {
+        setCouples(history);
+        const active = history.find((c) => c.is_active);
+        if (active) setSelectedCoupleId(active.couple_id);
+      })
+      .catch(() => {});
+  }, [token]);
+
+  // Fetch balance when couple or month changes
+  useEffect(() => {
+    if (!token || !selectedCoupleId) return;
     setLoading(true);
     setError("");
-    getBalance(token, year, month)
+    getBalance(token, year, month, selectedCoupleId)
       .then(setData)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
-  }, [token, year, month]);
+  }, [token, year, month, selectedCoupleId]);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900">Balance</h1>
-        <MonthPicker
-          year={year}
-          month={month}
-          onChange={(y, m) => {
-            setYear(y);
-            setMonth(m);
-          }}
-        />
+        <div className="flex items-center gap-4">
+          {couples.length > 1 && (
+            <CoupleSelector
+              couples={couples}
+              activeCoupleId={selectedCoupleId}
+              onChange={setSelectedCoupleId}
+            />
+          )}
+          <MonthPicker
+            year={year}
+            month={month}
+            onChange={(y, m) => {
+              setYear(y);
+              setMonth(m);
+            }}
+          />
+        </div>
       </div>
 
       {loading && (

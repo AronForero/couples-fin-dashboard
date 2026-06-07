@@ -1,6 +1,7 @@
 import type {
   AuthResponse,
   BalanceResponse,
+  CoupleHistory,
   CoupleMember,
   Expense,
   ExpenseUpdate,
@@ -87,6 +88,30 @@ export function getCoupleMembers(token: string): Promise<CoupleMember[]> {
   return request<CoupleMember[]>("/api/auth/couple/members", token);
 }
 
+// --- Couple Lifecycle ---
+
+export function leaveCouple(token: string): Promise<User> {
+  return request<User>("/api/couple/leave", token, { method: "POST" });
+}
+
+export function getCoupleHistory(token: string): Promise<CoupleHistory[]> {
+  return request<CoupleHistory[]>("/api/couples/history", token);
+}
+
+export function getCoupleExpenses(
+  token: string,
+  coupleId: number,
+  year?: number,
+  month?: number,
+): Promise<Expense[]> {
+  let path = `/api/couples/${coupleId}/expenses`;
+  const params = new URLSearchParams();
+  if (year) params.set("year", year.toString());
+  if (month) params.set("month", month.toString());
+  if (params.toString()) path += `?${params.toString()}`;
+  return request<Expense[]>(path, token);
+}
+
 // --- Health ---
 
 export function getHealth(): Promise<HealthResponse> {
@@ -99,11 +124,11 @@ export function getExpenses(
   token: string,
   year: number,
   month: number,
+  coupleId?: number | null,
 ): Promise<Expense[]> {
-  return request<Expense[]>(
-    `/api/expenses?year=${year}&month=${month}`,
-    token,
-  );
+  let path = `/api/expenses?year=${year}&month=${month}`;
+  if (coupleId) path += `&couple_id=${coupleId}`;
+  return request<Expense[]>(path, token);
 }
 
 export function updateExpense(
@@ -134,11 +159,11 @@ export function getBalance(
   token: string,
   year: number,
   month: number,
+  coupleId?: number | null,
 ): Promise<BalanceResponse> {
-  return request<BalanceResponse>(
-    `/api/balance?year=${year}&month=${month}`,
-    token,
-  );
+  let path = `/api/balance?year=${year}&month=${month}`;
+  if (coupleId) path += `&couple_id=${coupleId}`;
+  return request<BalanceResponse>(path, token);
 }
 
 // --- Split ---

@@ -23,6 +23,7 @@ export interface Expense {
   valor: number;
   compartida: string;
   valor_a_pagar: number | null;
+  couple_id: number;
   created_at: string;
 }
 
@@ -72,6 +73,15 @@ export interface CoupleMember {
   id: number;
   display_name: string;
   email: string;
+}
+
+export interface CoupleHistory {
+  couple_id: number;
+  partner_name: string;
+  joined_at: string;
+  left_at: string | null;
+  total_spent: number;
+  is_active: boolean;
 }
 
 export interface HealthResponse {

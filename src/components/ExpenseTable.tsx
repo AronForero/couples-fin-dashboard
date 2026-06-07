@@ -5,7 +5,8 @@ import { formatCOP } from "@/components/CategoryBreakdown";
 
 interface ExpenseTableProps {
   expenses: Expense[];
-  onEdit: (expense: Expense) => void;
+  onEdit?: (expense: Expense) => void;
+  readOnly?: boolean;
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -25,7 +26,7 @@ function formatDate(dateStr: string): string {
   return d.toLocaleDateString("es-CO", { day: "numeric", month: "short" });
 }
 
-export default function ExpenseTable({ expenses, onEdit }: ExpenseTableProps) {
+export default function ExpenseTable({ expenses, onEdit, readOnly = false }: ExpenseTableProps) {
   if (expenses.length === 0) {
     return (
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center">
@@ -47,7 +48,7 @@ export default function ExpenseTable({ expenses, onEdit }: ExpenseTableProps) {
               <th className="text-right px-4 py-3 font-medium text-slate-500">Valor</th>
               <th className="text-center px-4 py-3 font-medium text-slate-500">Compartida</th>
               <th className="text-right px-4 py-3 font-medium text-slate-500">A pagar</th>
-              <th className="px-4 py-3 w-10"></th>
+              {!readOnly && <th className="px-4 py-3 w-10"></th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
@@ -94,17 +95,19 @@ export default function ExpenseTable({ expenses, onEdit }: ExpenseTableProps) {
                 <td className="px-4 py-3 text-right tabular-nums text-slate-600 whitespace-nowrap">
                   {exp.valor_a_pagar ? formatCOP(exp.valor_a_pagar) : "—"}
                 </td>
-                <td className="px-4 py-3">
-                  <button
-                    onClick={() => onEdit(exp)}
-                    className="text-slate-400 hover:text-indigo-600 transition-colors"
-                    title="Editar"
-                  >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
-                    </svg>
-                  </button>
-                </td>
+                {!readOnly && (
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => onEdit?.(exp)}
+                      className="text-slate-400 hover:text-indigo-600 transition-colors"
+                      title="Editar"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
+                      </svg>
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
