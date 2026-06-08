@@ -6,6 +6,7 @@ import type {
   Expense,
   ExpenseUpdate,
   HealthResponse,
+  Income,
   SplitSettings,
   User,
 } from "@/types";
@@ -148,6 +149,41 @@ export function deleteExpense(
 ): Promise<{ deleted: boolean; id: number }> {
   return request<{ deleted: boolean; id: number }>(
     `/api/expenses/${id}`,
+    token,
+    { method: "DELETE" },
+  );
+}
+
+// --- Incomes ---
+
+export function getIncomes(
+  token: string,
+  year: number,
+  month: number,
+): Promise<Income[]> {
+  return request<Income[]>(
+    `/api/incomes?year=${year}&month=${month}`,
+    token,
+  );
+}
+
+export function updateIncome(
+  token: string,
+  id: number,
+  data: ExpenseUpdate,
+): Promise<Income> {
+  return request<Income>(`/api/incomes/${id}`, token, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+export function deleteIncome(
+  token: string,
+  id: number,
+): Promise<{ deleted: boolean; id: number }> {
+  return request<{ deleted: boolean; id: number }>(
+    `/api/incomes/${id}`,
     token,
     { method: "DELETE" },
   );

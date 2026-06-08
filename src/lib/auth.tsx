@@ -27,6 +27,7 @@ interface AuthContextValue {
   hasCouple: boolean;
   coupleMembers: CoupleMember[];
   memberNames: [string, string];
+  isActive: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (
     email: string,
@@ -105,6 +106,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const inviteCode = user?.invite_code ?? null;
 
+  const TRIAL_DAYS = 30;
+
+  const isActive = useMemo(() => {
+    if (!user) return false;
+    if (user.status === "active") return true;
+    if (user.status === "suspended") return false;
+    if (user.status === "trial") {
+      const created = new Date(user.created_at);
+      const expires = new Date(created.getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
+      return new Date() < expires;
+    }
+    return false;
+  }, [user]);
+
   const memberNames: [string, string] = useMemo(() => {
     if (coupleMembers.length >= 2) {
       return [coupleMembers[0].display_name, coupleMembers[1].display_name];
@@ -123,6 +138,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       hasCouple: !!user?.couple_id,
       coupleMembers,
       memberNames,
+      isActive,
       login,
       register,
       logout,
@@ -134,6 +150,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       inviteCode,
       coupleMembers,
       memberNames,
+      isActive,
       login,
       register,
       logout,

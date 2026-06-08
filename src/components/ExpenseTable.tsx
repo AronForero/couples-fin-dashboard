@@ -1,10 +1,11 @@
 "use client";
 
-import type { Expense } from "@/types";
+import type { Expense, Transaction } from "@/types";
 import { formatCOP } from "@/components/CategoryBreakdown";
 
 interface ExpenseTableProps {
-  expenses: Expense[];
+  expenses?: Expense[];
+  transactions?: Transaction[];
   onEdit?: (expense: Expense) => void;
   readOnly?: boolean;
 }
@@ -26,11 +27,20 @@ function formatDate(dateStr: string): string {
   return d.toLocaleDateString("es-CO", { day: "numeric", month: "short" });
 }
 
-export default function ExpenseTable({ expenses, onEdit, readOnly = false }: ExpenseTableProps) {
-  if (expenses.length === 0) {
+export default function ExpenseTable({
+  expenses,
+  transactions,
+  onEdit,
+  readOnly = false,
+}: ExpenseTableProps) {
+  const items: Transaction[] = transactions
+    ? transactions
+    : (expenses ?? []).map((e) => ({ ...e, type: "expense" }));
+
+  if (items.length === 0) {
     return (
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center">
-        <p className="text-slate-400">No hay gastos este mes</p>
+        <p className="text-slate-400">No hay transacciones este mes</p>
       </div>
     );
   }
@@ -42,6 +52,7 @@ export default function ExpenseTable({ expenses, onEdit, readOnly = false }: Exp
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50">
               <th className="text-left px-4 py-3 font-medium text-slate-500">Fecha</th>
+              <th className="text-left px-4 py-3 font-medium text-slate-500">Tipo</th>
               <th className="text-left px-4 py-3 font-medium text-slate-500">Concepto</th>
               <th className="text-left px-4 py-3 font-medium text-slate-500">Categoría</th>
               <th className="text-left px-4 py-3 font-medium text-slate-500">Pagó</th>
@@ -52,64 +63,98 @@ export default function ExpenseTable({ expenses, onEdit, readOnly = false }: Exp
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
-            {expenses.map((exp) => (
-              <tr key={exp.id} className="hover:bg-slate-50 transition-colors">
-                <td className="px-4 py-3 text-slate-600 whitespace-nowrap">
-                  {formatDate(exp.fecha)}
-                </td>
-                <td className="px-4 py-3 text-slate-900 font-medium max-w-[200px] truncate">
-                  {exp.concepto}
-                </td>
-                <td className="px-4 py-3">
-                  {exp.categoria && (
+            {items.map((t) => {
+              if (t.type === "income") {
+                return (
+                  <tr key={`i-${t.id}`} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-4 py-3 text-slate-600 whitespace-nowrap">
+                      {formatDate(t.fecha)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                        Ingreso
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-slate-900 font-medium max-w-[200px] truncate">
+                      {t.concepto}
+                    </td>
+                    <td className="px-4 py-3 text-slate-300">—</td>
+                    <td className="px-4 py-3 text-slate-300">—</td>
+                    <td className="px-4 py-3 text-right tabular-nums text-emerald-600 font-semibold whitespace-nowrap">
+                      +{formatCOP(t.valor)}
+                    </td>
+                    <td className="px-4 py-3 text-center text-slate-300">—</td>
+                    <td className="px-4 py-3 text-right tabular-nums text-slate-300">—</td>
+                    {!readOnly && <td className="px-4 py-3"></td>}
+                  </tr>
+                );
+              }
+
+              const exp = t as Expense;
+              return (
+                <tr key={`e-${exp.id}`} className="hover:bg-slate-50 transition-colors">
+                  <td className="px-4 py-3 text-slate-600 whitespace-nowrap">
+                    {formatDate(exp.fecha)}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+                      Gasto
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-slate-900 font-medium max-w-[200px] truncate">
+                    {exp.concepto}
+                  </td>
+                  <td className="px-4 py-3">
+                    {exp.categoria && (
+                      <span
+                        className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium capitalize ${
+                          CATEGORY_COLORS[exp.categoria] ?? CATEGORY_COLORS.IMPREVISTOS
+                        }`}
+                      >
+                        {exp.categoria.toLowerCase()}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
                     <span
-                      className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium capitalize ${
-                        CATEGORY_COLORS[exp.categoria] ?? CATEGORY_COLORS.IMPREVISTOS
+                      className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
+                        exp.quien_pago === "Aru"
+                          ? "bg-indigo-100 text-indigo-700"
+                          : "bg-rose-100 text-rose-700"
                       }`}
                     >
-                      {exp.categoria.toLowerCase()}
+                      {exp.quien_pago}
                     </span>
-                  )}
-                </td>
-                <td className="px-4 py-3">
-                  <span
-                    className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
-                      exp.quien_pago === "Aru"
-                        ? "bg-indigo-100 text-indigo-700"
-                        : "bg-rose-100 text-rose-700"
-                    }`}
-                  >
-                    {exp.quien_pago}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-right tabular-nums text-slate-900 whitespace-nowrap">
-                  {formatCOP(exp.valor)}
-                </td>
-                <td className="px-4 py-3 text-center">
-                  {exp.compartida === "Si" ? (
-                    <span className="text-emerald-500">✓</span>
-                  ) : (
-                    <span className="text-slate-300">—</span>
-                  )}
-                </td>
-                <td className="px-4 py-3 text-right tabular-nums text-slate-600 whitespace-nowrap">
-                  {exp.valor_a_pagar ? formatCOP(exp.valor_a_pagar) : "—"}
-                </td>
-                {!readOnly && (
-                  <td className="px-4 py-3">
-                    <button
-                      onClick={() => onEdit?.(exp)}
-                      className="text-slate-400 hover:text-indigo-600 transition-colors"
-                      title="Editar"
-                    >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
-                      </svg>
-                    </button>
                   </td>
-                )}
-              </tr>
-            ))}
+                  <td className="px-4 py-3 text-right tabular-nums text-slate-900 whitespace-nowrap">
+                    {formatCOP(exp.valor)}
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    {exp.compartida === "Si" ? (
+                      <span className="text-emerald-500">✓</span>
+                    ) : (
+                      <span className="text-slate-300">—</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-right tabular-nums text-slate-600 whitespace-nowrap">
+                    {exp.valor_a_pagar ? formatCOP(exp.valor_a_pagar) : "—"}
+                  </td>
+                  {!readOnly && (
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() => onEdit?.(exp)}
+                        className="text-slate-400 hover:text-indigo-600 transition-colors"
+                        title="Editar"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
+                        </svg>
+                      </button>
+                    </td>
+                  )}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

@@ -9,7 +9,7 @@ import CoupleHistoryCard from "@/components/CoupleHistoryCard";
 import LeaveCoupleDialog from "@/components/LeaveCoupleDialog";
 
 export default function CoupleManagePage() {
-  const { token, user, refreshUser } = useAuth();
+  const { token, refreshUser, isActive } = useAuth();
   const router = useRouter();
   const [couples, setCouples] = useState<CoupleHistory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -95,7 +95,8 @@ export default function CoupleManagePage() {
 
           <button
             onClick={() => setShowLeaveDialog(true)}
-            className="w-full bg-red-50 text-red-600 rounded-lg px-4 py-2.5 text-sm font-medium hover:bg-red-100 transition-colors"
+            disabled={!isActive}
+            className="w-full bg-red-50 text-red-600 rounded-lg px-4 py-2.5 text-sm font-medium hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Salir de la pareja
           </button>
