@@ -1,4 +1,5 @@
 import type {
+  ActualMoneyResponse,
   AuthResponse,
   BalanceResponse,
   CoupleHistory,
@@ -200,6 +201,29 @@ export function getBalance(
   let path = `/api/balance?year=${year}&month=${month}`;
   if (coupleId) path += `&couple_id=${coupleId}`;
   return request<BalanceResponse>(path, token);
+}
+
+// --- Actual Money ---
+
+export function getActualMoney(
+  token: string,
+  params: {
+    year?: number | null;
+    month?: number | null;
+    start?: string;
+    end?: string;
+  },
+): Promise<ActualMoneyResponse> {
+  const search = new URLSearchParams();
+  if (params.year) search.set("year", params.year.toString());
+  if (params.month) search.set("month", params.month.toString());
+  if (params.start) search.set("start", params.start);
+  if (params.end) search.set("end", params.end);
+  const qs = search.toString();
+  return request<ActualMoneyResponse>(
+    `/api/actual-money${qs ? `?${qs}` : ""}`,
+    token,
+  );
 }
 
 // --- Split ---

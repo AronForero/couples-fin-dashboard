@@ -7,6 +7,7 @@ import type { Expense, ExpenseUpdate, Income, Transaction, TransactionFilter } f
 import MonthPicker from "@/components/MonthPicker";
 import ExpenseTable from "@/components/ExpenseTable";
 import ExpenseEditModal from "@/components/ExpenseEditModal";
+import ActualMoneyCard from "@/components/ActualMoneyCard";
 import { formatCOP } from "@/components/CategoryBreakdown";
 
 const now = new Date();
@@ -109,6 +110,10 @@ export default function ExpensesPage() {
           />
         </div>
       </div>
+
+      {!loading && (expenses.length > 0 || incomes.length > 0) && (
+        <ActualMoneyCard year={year} month={month} compact />
+      )}
 
       {!loading && (expenses.length > 0 || incomes.length > 0) && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

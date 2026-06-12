@@ -8,6 +8,7 @@ import MonthPicker from "@/components/MonthPicker";
 import BalanceCard from "@/components/BalanceCard";
 import CategoryBreakdown, { formatCOP } from "@/components/CategoryBreakdown";
 import CoupleSelector from "@/components/CoupleSelector";
+import ActualMoneyCard from "@/components/ActualMoneyCard";
 
 const now = new Date();
 
@@ -77,6 +78,17 @@ export default function BalancePage() {
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
           {error}
         </div>
+      )}
+
+      {data && !loading && (
+        <ActualMoneyCard
+          year={year}
+          month={month}
+          onChange={(y, m) => {
+            setYear(y);
+            if (m != null) setMonth(m);
+          }}
+        />
       )}
 
       {data && !loading && (

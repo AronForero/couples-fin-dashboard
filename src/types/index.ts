@@ -62,6 +62,16 @@ export interface Transaction {
 
 export type TransactionFilter = "all" | "expenses" | "incomes";
 
+export interface ActualMoneyResponse {
+  total_income: number;
+  personal_expenses: number;
+  shared_expenses_my_share: number;
+  shared_expenses_total: number;
+  actual_money: number;
+  split_percentage: number;
+  period: { start: string; end: string };
+}
+
 export interface ExpenseUpdate {
   fecha?: string;
   quien_pago?: string;
