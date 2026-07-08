@@ -21,6 +21,7 @@ export interface Expense {
   id: number;
   fecha: string;
   quien_pago: string;
+  quien_pago_id: number | null;
   subcategoria: string | null;
   categoria: string | null;
   concepto: string;
@@ -51,6 +52,7 @@ export interface Transaction {
   created_at: string;
   // expense-only fields (optional)
   quien_pago?: string;
+  quien_pago_id?: number | null;
   subcategoria?: string | null;
   categoria?: string | null;
   compartida?: string;

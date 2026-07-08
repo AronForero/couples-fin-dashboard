@@ -19,7 +19,7 @@ const FILTER_LABELS: Record<TransactionFilter, string> = {
 };
 
 export default function ExpensesPage() {
-  const { token, memberNames, isActive } = useAuth();
+  const { token, memberNames, isActive, user } = useAuth();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -169,6 +169,7 @@ export default function ExpensesPage() {
           transactions={visibleTransactions}
           onEdit={setEditingExpense}
           readOnly={!isActive}
+          currentUserId={user?.id ?? null}
         />
       )}
 
