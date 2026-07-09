@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/lib/auth";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { UserStatus } from "@/types";
@@ -48,7 +49,54 @@ export default function Navbar() {
   const { displayName, coupleMembers, logout, user } = useAuth();
   const pathname = usePathname();
 
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    function handleEscape(e: KeyboardEvent) {
+      if (e.key === "Escape") setDropdownOpen(false);
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
+
   const isSolo = coupleMembers.length < 2;
+
+  function renderStatusBadge() {
+    if (!user) return null;
+    if (user.status === "trial") {
+      const days = getTrialDaysRemaining(user.created_at);
+      return (
+        <span className="text-xs font-medium px-2 py-0.5 rounded-full inline-block bg-amber-100 text-amber-700">
+          Prueba — {days} días restantes
+        </span>
+      );
+    }
+    if (user.status === "active") {
+      return (
+        <span className="text-xs font-medium px-2 py-0.5 rounded-full inline-block bg-emerald-100 text-emerald-700">
+          Activo
+        </span>
+      );
+    }
+    if (user.status === "suspended") {
+      return (
+        <span className="text-xs font-medium px-2 py-0.5 rounded-full inline-block bg-red-100 text-red-700">
+          Suspendido
+        </span>
+      );
+    }
+    return null;
+  }
 
   return (
     <div>
@@ -86,16 +134,44 @@ export default function Navbar() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-slate-500 hidden sm:inline">
-              {displayName}
-            </span>
-            <button
-              onClick={logout}
-              className="text-sm text-slate-400 hover:text-red-600 transition-colors"
-            >
-              Salir
-            </button>
+          <div ref={dropdownRef} className="relative">
+            {user && (
+              <>
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 transition-colors"
+                >
+                  {displayName}
+                  <svg
+                    className={`w-4 h-4 transition-transform ${dropdownOpen ? "rotate-180" : ""}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                  </svg>
+                </button>
+                {dropdownOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-lg border border-slate-200 p-4 z-50">
+                    <div className="space-y-1">
+                      <p className="font-semibold text-slate-900">{displayName}</p>
+                      <p className="text-xs text-slate-500">{user.email}</p>
+                      <div className="pt-1">{renderStatusBadge()}</div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setDropdownOpen(false);
+                        logout();
+                      }}
+                      className="w-full text-left text-sm text-slate-500 hover:text-red-600 transition-colors py-2 mt-3 border-t border-slate-100"
+                    >
+                      Salir
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       </nav>
