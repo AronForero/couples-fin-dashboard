@@ -21,6 +21,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   INTERESES: "bg-cyan-100 text-cyan-700",
   "AHORRO/INVERSIÓN": "bg-teal-100 text-teal-700",
   IMPREVISTOS: "bg-slate-100 text-slate-600",
+  PRÉSTAMO: "bg-violet-100 text-violet-700",
 };
 
 function formatDate(dateStr: string): string {

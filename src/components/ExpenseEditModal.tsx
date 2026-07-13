@@ -13,6 +13,7 @@ const CATEGORIES = [
   "INTERESES",
   "AHORRO/INVERSIÓN",
   "IMPREVISTOS",
+  "PRÉSTAMO",
 ];
 
 interface ExpenseEditModalProps {
